@@ -117,3 +117,105 @@ slightly.
 Problem Set 2.18)
 
 Part 1)
+
+Block shape does appear to have an effect on time taken.  As stated above, it 
+looks as though children using cylinders took less time overall than children
+using cubes, although it isn't apparent immediately to me if the effect will be
+significant at any reasonable alpha level.  The two block shape groups do not
+appear to really have equal variance nor do they look exactly normal given
+their visible upward skew.  Trial does not appear to affect time at all when
+looking at the boxplots.  It isn't apparent to be me immediately when looking
+at the scatterplot of time by age whether age will have any significant effect.
+However, even if a significant effect of age on time is found, I would wonder
+whether or not that effect would still be present if those 2 times greater than
+125 didn't have enough weight to create an effect.  Those two points aside, I
+wouldn't be on any significant age effect.
+
+
+
+Part 2)
+
+If we assume that age, shape, and the interaction effect of age and shape are
+significant and provide an appropriate model for the data, we can conclude a
+few things.  The amount of time taken significantly changes with age.  The
+amount of time taken also significantly differs between the two shapes.
+Additionally, there is a significant interaction between age and shape such
+that as children age they become 'proficient' in stacking blocks of one
+type at a faster rate than they do of the other type. (I am assuming that
+children will not become less proficient at stacking blocks, although
+negative relationships and interactions are possible.)
+
+
+
+Part 3)
+
+If we assume that age, trial, and the interaction effect of age and trial are
+significant and provide an appropriate model for the data, we can conclude a
+few things.  The amount of time taken significantly changes with age.  The
+amount of time taken also significantly differs between the two trials.
+Additionally, there is a significant interaction between age and trial such
+that the slope of time by age differs significantly between the two trials.
+
+
+
+Part 4)
+
+This systematic component, given all effects are significant, claims that
+age, shape, trial, the interaction of age and trial, and the interaction of
+shape and trial are significant. (Or, depending on the effects and 
+significance, could just mean the interactions may be significance. I know
+that is a whole debate by itself.)  If we assume all effects are significant, 
+we know that time differs significantly with age, by shape, and by trial.
+Additionally, the slope of time by age differs for block shape AND for trial.
+
+
+
+Part 5)
+
+```{r}
+anova(lm(Time ~ Shape, data = blocks))
+```
+
+We see here that time does differ significantly between block shapes at 
+any reasonable alpha level with a p-value of 0.004315.
+
+
+
+Part 6)
+
+```{r}
+anova(lm(Time ~ Age * Shape, data = blocks))
+
+anova(lm(Time ~ Age, data = blocks))
+```
+
+When looking at these two models, we can see that we cannot conclude that
+older children take less time when accounting for block type.  Additionally,
+we cannot conclude that older children take less time to build the towers at all.
+The p-values of age and the p-value of the age:shape interaction are not
+significant in either model at any reasonable alpha level.  As confirmed in
+the scatterplot above, age is not a significant predictor of time taken.
+
+
+
+Part 7)
+
+```{r}
+anova(lm(Time ~ Shape, data = blocks))
+```
+
+When predicting time taken to the build the towers, only the shape of the
+blocks appears to be a significant predictor.  Age and trial are not
+significant or produce any significant interactions even with shape.
+Using shape as the only predictor of time is significant, and produces a
+suitable final model.
+
+
+
+Part 8)
+
+The significant predictor of time taken to build the towers is the shape
+of the blocks used.  The shape variable has a p-value of 0.004315, which is
+significant at any reasonable alpha level.  We can conclude that children using
+cylinders take significantly less time to build the towers than children using
+cube blocks on average.
