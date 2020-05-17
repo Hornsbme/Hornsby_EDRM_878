@@ -1,5 +1,5 @@
 ---
-title: "R Notebook"
+title: "Michael Hornsby EDRM 878 Assignment 1 Notebook"
 output: html_notebook
 ---
 
@@ -15,3 +15,105 @@ library(car)
 library(GLMsData)
 ```
 
+
+Problem Set 1.9
+
+Part 1)
+
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+summary(blocks)
+```
+
+
+
+Part 2)
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Shape, y = Time)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of Time by Block Shape",
+       x = "Block Shape")
+```
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Trial, y = Time)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of Time by Trial")
+```
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Age, y = Time)) +
+  geom_point() +
+  labs(title = "Scatterplot of Time by Age")
+```
+
+
+
+Part 3
+
+Looking at the boxplots of time taken by block shape, it appears as though
+using cube blocks resulted in an overall longer time taken. 
+I think I would have expected the opposite.  I would have guessed children
+would be quicker at stacking cubes than cylinders.
+Looking at the boxplots of time by trial, it looks as though children took
+about the same time for both trials.  As a general trend in the scatterplot,
+there doesn't seem to be an effect of age on time.  If I ignore those 2 points
+greater than a time of 125, there doesn't seem to be an significant
+relationship that I can visualize form the scatterplot.
+
+
+
+Part 4
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Shape, y = Number)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of Number of Blocks by Block Shape",
+       x = "Block Shape",
+       y = "Number of Blocks")
+```
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Trial, y = Number)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of Number of Blocks by Trial",
+       y = "Number of Blocks")
+```
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Age, y = Number)) +
+  geom_point() +
+  labs(title = "Scatterplot of Number of Blocks by Age",
+       y = "Number of Blocks")
+```
+
+
+
+Part 5)
+
+Looking at the boxplots of Number by Shape, it appears as though children using
+cubes used more blocks than children using cylinders on a fairly consistant
+basis.  Children at trial 2 appear to use slightly more blocks than at trial 1,
+although, I wouldn't think this effect would be significant at any reasonable
+alpha level looking at the boxplots.
+Looking at the scatterplot of number of blocks by age, there does appear to be
+a slightly positive linear relationship between number of blocks and age.  As
+age increases, the number of blocks used on average appears to increase
+slightly.
+
+
+
+Problem Set 2.18)
+
+Part 1)
