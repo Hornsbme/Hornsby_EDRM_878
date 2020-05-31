@@ -21,8 +21,6 @@ library(MASS)
 
 Problem 5.25
 
-Part 1
-
 ```{r}
 data(blocks)
 
@@ -32,3 +30,66 @@ blocks$Shape <- as.factor(blocks$Shape)
 summary(blocks)
 ```
 
+
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Age, y = Number)) +
+  geom_point() +
+  labs(title = "Scatterplot of Number of Blocks by Age",
+       y = "Number of Blocks")
+```
+
+```{r}
+blocks %>%
+  ggplot() +
+  geom_histogram(aes(x = Number)) +
+  labs(title = "QQ-plot for Number of Blocks")
+
+blocks %>%
+  ggplot() +
+  geom_qq(aes(sample = Age)) +
+  labs(title = "QQ-plot for Age")
+```
+
+
+```{r}
+summary(glm(Number ~ Age, family = poisson(link = log), data = blocks))
+```
+
+So, I explored and tried a few different options here, but the model I choose to stick with is the poisson model with the log link above.  While we are modelling count data, I'm not exactly convinced the poisson model is the best choice, but it does make a nice model!  So, to the questions:
+
+1)
+The poisson distribution is appropriate and probably the simplest applicable discrete distribution to apply here, although I'm not confident enough to call it the 'best' here.  We have a discrete y that is count data and a continuous x, so the distribution used is really driven by the y in this case.
+
+2)
+The model is:
+log(mu-hat) = 1.3447 + 0.1415(Age)
+
+Ultimately, I decided not to transform Age in any way.  All of my exploration yielded worse outcomes than leaving it alone.
+
+Ultimately, I think this model is appropriate, easy to interpret, and has very nice significance in the p-values shown.
+
+
+
+Problem 6.10
+
+The model fitted above:
+
+```{r}
+summary(glm(Number ~ Age, family = poisson(link = log), data = blocks))
+```
+
+1)
+The fitted model is written as:
+
+log(mu-hat) = 1.3447 + 0.1415(Age)
+
+where Number of blocks is the response y and Age is the predictor x.
+
+2)
+The standard error for the intercept is 0.2223.
+The standard error for the Age coefficient is 0.0534.
+
+3)
+The residual deviance is 62.244.
