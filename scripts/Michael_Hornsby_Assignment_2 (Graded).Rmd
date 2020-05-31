@@ -1,0 +1,166 @@
+---
+title: "Michael Hornsby EDRM 878 Assignment 2 Notebook"
+output: html_notebook
+---
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+```
+
+
+Problem Set 3.16
+
+
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+summary(blocks)
+```
+
+
+The model I used in 2.18:
+
+```{r}
+anova(lm(Time ~ Shape, data = blocks))
+```
+
+
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Shape, y = Time)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of Time by Block Shape",
+       x = "Block Shape",
+       y = "Time")
+
+my.model <- lm(Time ~ Shape, data = blocks)
+
+resid.raw <- resid(my.model)
+
+fit.values <- fitted(my.model)
+
+plot(fit.values, resid.raw)
+```
+
+Looking at the spread of the boxplots and the outliers present, it isn't
+exactly clear I can safely assume equal variance among the groups.  This is
+supported by the plot of raw residuals.  The spread of residuals doesn't look
+equal among the two groups.  One group in the residuals clearly has a larger
+spread than the other, outliers included.
+
+```{r}
+influence.measures(my.model)
+```
+
+Looking at the influence measures, observations 6 and 76 are cause for concern.
+Let's see if this is remedied in our later model.
+
+
+Let's look at a qq-plot of time to see if a transformation is needed.
+
+```{r}
+blocks %>%
+  ggplot() +
+  geom_qq(aes(sample = Time)) +
+  labs(title = "QQ-plot for Time")
+```
+
+
+This does show a pretty significant deviation from normality.
+Let's look at a boxcox ladder of powers plot.
+
+```{r}
+boxcox(Time ~ Shape,
+       lambda = seq(-2.00, 1.00, by = .05), data = blocks)
+```
+
+Based on this plot. I'm going to look at two transformations.
+The first will be a log transformation of the Time response.
+The second will be Time raised to the (-2/5).
+
+
+```{r}
+blocks$logTime <- log(blocks$Time)
+blocks$transTime <- (blocks$Time)^(-2/5)
+```
+
+```{r}
+blocks %>%
+  ggplot() +
+  geom_qq(aes(sample = logTime)) +
+  labs(title = "QQ-plot for logTime")
+
+blocks %>%
+  ggplot() +
+  geom_qq(aes(sample = transTime)) +
+  labs(title = "QQ-plot for transTime")
+```
+
+Looking at these, I think I am going to stick with the (-2/5) transformation.
+I know that transformation might be a little tricker to interpret or explain,
+but I really think the qq-plot looks better.
+
+
+```{r}
+blocks %>% 
+  ggplot(aes(x = Shape, y = transTime)) +
+  geom_boxplot() +
+  labs(title = "Boxplots of transTime by Block Shape",
+       x = "Block Shape",
+       y = "transTime")
+```
+
+The boxplots even look like they have equal variance this time!
+
+
+Let's look at the new model.
+
+```{r}
+anova(lm(transTime ~ Shape, data = blocks))
+```
+
+
+```{r}
+my.new.model <- lm(transTime ~ Shape, data = blocks)
+```
+
+
+```{r}
+resid.raw <- resid(my.new.model)
+
+fit.values <- fitted(my.new.model)
+
+plot(fit.values, resid.raw)
+
+influence.measures(my.new.model)
+```
+
+The boxplots look as though they have equal variance, the residual plot looks
+much better and shows a fairly equal spread among the two groups, and the 
+problem of outliers looks to be solved.  Surprisingly, it looks as though
+the transformation of the Time response variable remedied the obvious
+problems I had.  When we look at the influence measures, we have
+even more observations marked as influential.  However, looking at the
+residuals, I don't think these are a cause for concern here.  Given our sample
+size and how reasonable everything seems looking at the residuals, I would be
+extremely hesitant to simply remove any observations with high influence from
+either model without further information.
+
+***
+
+**Very nice work!**
+
+**20/20**
