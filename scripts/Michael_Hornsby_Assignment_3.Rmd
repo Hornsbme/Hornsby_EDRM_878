@@ -1,0 +1,34 @@
+---
+title: "Michael Hornsby EDRM 878 Assignment 3"
+output: html_notebook
+---
+
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+```
+
+
+
+Problem 5.25
+
+Part 1
+
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+summary(blocks)
+```
+
