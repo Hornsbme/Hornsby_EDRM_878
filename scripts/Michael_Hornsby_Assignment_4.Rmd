@@ -1,0 +1,37 @@
+---
+title: "Michael Hornsby EDRM 878 Assignment 4"
+output: html_notebook
+---
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+library(statmod)
+```
+
+
+Import and tidy data:
+
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+summary(blocks)
+```
+
+
+My 6.10 glm:
+
+```{r}
+summary(glm(Number ~ Age, family = poisson(link = log), data = blocks))
+```
