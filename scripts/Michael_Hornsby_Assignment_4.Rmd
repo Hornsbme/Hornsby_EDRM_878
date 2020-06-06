@@ -35,3 +35,143 @@ My 6.10 glm:
 ```{r}
 summary(glm(Number ~ Age, family = poisson(link = log), data = blocks))
 ```
+
+Problem 7.4
+
+The Wald test for age (same as above):
+
+
+```{r}
+summary(glm(Number ~ Age, family = poisson(link = log), data = blocks))
+```
+
+This does suggest age makes a significant predictor of the number of blocks when using the Poisson regression for the Number of Blocks response variable.
+
+
+
+The score test:
+
+```{r}
+blocks.m0 <- glm(Number ~ 1, data = blocks, family = poisson(link = "log"))
+z.stat <- glm.scoretest(blocks.m0, blocks$Age)
+p.val <- 2 * pnorm(abs(z.stat), lower.tail = FALSE)
+round(c(score.stat = z.stat, P = p.val), 4)
+```
+
+The score test also suggests age makes for a significant predictor with just about the same p-value.
+
+
+
+The likelihood ratio test:
+
+```{r}
+fit <- glm(Number ~ Age, data = blocks, family = poisson(link = "log"))
+as.data.frame(anova(fit, test = "Chisq"))
+```
+
+The likelihood ratio test p-value is similar as well.
+
+
+
+The results from all 3 tests suggest the same conclusion.  All 3 tests results in p-values very close to 0.008, which is significant at any reasonable alpha level.  Thus, all 3 tests conclude that age is a significant predictor for the number of blocks when using a poisson distribution and a log link for the distribution of the number of blocks response.
+
+
+```{r}
+min(blocks$Number)
+```
+
+
+The saddlepoint approximation is sufficiently accureate when the min(yi) is greater than or equal to 3 when using the poisson distribution.  Thus, the saddlepoint approximation should be sufficiently accurate as our min(yi) = 3.
+
+
+
+The Central Limit Theorem is sufficiently accurate when the min(yi) is greater than or equal to 5 when using the poisson distribution.  Thus, we cannot expect the Central Limit Theorem to be sufficiently accurate as our min(yi) = 3.
+
+
+95% Wald confidence intervals for regression coefficients:
+
+```{r}
+wald.fit <- glm(Number ~ Age, family = poisson(link = log), data = blocks)
+printCoefmat(coef(summary(wald.fit)))
+confint(wald.fit)
+```
+
+
+Plot of relationship:
+
+```{r}
+
+plot(Number ~ Age, data = blocks)
+
+abline(a = exp(1.34470), b = exp(0.14151))
+abline(a = exp(0.9024058), b = exp(0.0377308), lty = 2)
+abline(a = exp(1.7742235), b = exp(0.2471074), lty = 2)
+```
+
+
+
+Problem 8.11:
+
+Once again, the model:
+
+```{r}
+my.model <- glm(Number ~ Age, family = poisson(link = log), data = blocks)
+```
+
+Let's see if I've chosen the right EDM, my residuals should have a normal distribution:
+
+```{r}
+qr.my.model <- qresid(my.model)
+qqnorm(qr.my.model, las = 1)
+qqline(qr.my.model)
+```
+
+This looks ok, not spectacular.  I would think it shows that the tails are a little light, but I don't think this would invalidate the model.
+
+
+Check for outliers:
+
+```{r}
+rs <- cbind(rD = resid(my.model),
+            "r'D" = rstandard(my.model),
+            "r''" = rstudent(my.model),
+            rQ = qresid(my.model))
+
+head(rs)
+
+apply(abs(rs), 2, max)
+```
+
+These maximum residuals look pretty good I would say, nothing extreme.
+
+Let's check for influential observations:
+
+```{r}
+im <- influence.measures(my.model)
+names(im)
+im$infmat <- round(im$infmat, 3)
+head(im$infmat)
+colSums(im$is.inf)
+```
+
+```{r}
+my.model.cd <- cooks.distance(my.model)
+
+plot(my.model.cd,
+     type = "h",
+     ylab = "Cook's distance",
+     las = 1)
+
+plot(dffits(my.model),
+     type = "h",
+     las = 1,
+     ylab = "DFFITS")
+
+infl <- which.max(my.model.cd)
+infl
+my.model.cd[infl]
+```
+
+All of these values look well within reasonable bounds.  I don't think I'm concerned about any of these Cook's distance values or DFFITS.
+
+In summary, my residuals look good, I don't see any outliers, and I don't see any observations with unacceptably high influence or weight.
