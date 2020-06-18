@@ -1,0 +1,21 @@
+---
+title: "Michael Hornsby EDRM 878 Final"
+output: html_notebook
+---
+
+libraries:
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+library(statmod)
+```
+
