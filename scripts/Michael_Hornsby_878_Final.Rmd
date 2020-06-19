@@ -351,9 +351,88 @@ Primary effect size estimates:
 
 Analysis:
 
+First I want to load the data, create the contingency table, and look at the counts:
+
+```{r}
+load(here("data","sociology.Rdata"))
+
+soc_survey$response <- as.factor(soc_survey$response)
+soc_survey$major <- as.factor(soc_survey$major)
+soc_survey$gender <- as.factor(soc_survey$gender)
+
+summary(soc_survey)
+table(soc_survey)
+```
+```{r}
+Count <- c(1, 5, 6, 16, 16, 8, 20, 10, 0, 10, 2, 12, 19, 7, 15, 13)
+Response <- c(1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4)
+Major <- c(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2)
+Gender <- c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2)
+soctable <- data.frame(Count, Response, Major, Gender)
+soctable
+```
+
+Let's check the interaction of response and major to see what happens:
+
+```{r}
+poisson.1 <- glm(Count ~ Response * Major,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.1, test = "Chisq")
+```
+
+We see that sociology students do differ significantly in response counts.
+Let's look at a table to see:
+
+```{r}
+table(soc_survey$response, soc_survey$major)
+```
+
+We can see that sociology students are more likely to choose options 3 and 4 (increase 
+social services support or none of the above) and that other majors are more likely to
+choose options 1 and 2 in comparison to sociology students (increasing penalties and
+police force).
+
+Let's explore factoring in gender:
+
+```{r}
+poisson.2 <- glm(Count ~ Response * Major * Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.2, test = "Chisq")
+
+
+poisson.3 <- glm(Count ~ Response * Major * Gender - Response:Major:Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.3, test = "Chisq")
+
+poisson.4 <- glm(Count ~ Response * Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.4, test = "Chisq")
+```
+
+I tried the above 3 models, as well as some additional ones just to be safe, and found no
+indication that Gender has any effect on response count.  I think it is worth mentioning
+that some count cells do have low values (including 1 and 0), however, I don't think that
+is cause for alarm here given the context of the situation and sample size.
 
 
 Additional:
+
+I don't think we have to worry about simpson's paradox in this data, especially with 
+regards to the specific research question of interest.  Looking at the counts of response
+by major pretty much explains our significant effect there.  I suppose it is still possible
+for the paradox to occur in some effect given we can't randomize to condition here, but 
+I'm not seeing any real evidence of it, especially since in this reasearch question of
+interest we don't want to look at just reponse variable counts alone.
+
+
 
 
 
