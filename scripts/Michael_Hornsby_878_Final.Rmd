@@ -110,7 +110,7 @@ Ok, all things considered, this model looks nice.  We have a significant p-value
 for Temp, which is significant at an alpha = 0.05 level.  We have an Intercept age of
 35.67806 and a Temp coefficient of -0.07774.  Thus our model is:
 
-Age = 35.67806 - 0.07774(Temp)
+Age = 35.67806 - 0.07774(Temp) + e
 
 This model will give us the expected Age at which the baby will start to crawl given the
 monthly average temperature six months after the birth month of the baby.
@@ -291,7 +291,7 @@ member of the Conservative party, so I was curious if her leadership would bring
 Conservative participation up to a level even with the other parties.  Also a random
 note: the Green party in the UK has only ever had one member of parliament elected
 to the House of Commons, who is female.  Her name is Caroline Lucas and she's been an mp
-since 2010, so it is interesting that Green's have the highest expected proportion of female participation here.
+since 2010, so it is interesting that Greens have the highest expected proportion of female participation here.
 
 
 Additional:
@@ -471,7 +471,75 @@ Primary effect size estimates:
 
 Analysis:
 
+Import data and subset to only include Trial 1:
 
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+blockst1 <- subset(blocks, Trial == 1)
+
+summary(blockst1)
+```
+
+I want to plot the relationships:
+
+```{r}
+blockst1 %>% 
+  ggplot(aes(x = Age, y = Number, color = Shape)) +
+  geom_point() +
+  labs(title = "Scatterplot of Number on Age by Shape",
+       y = "Number",
+       x = "Age")
+```
+
+Looking at this, it does look as though shape is significant and there does appear to
+be some upward trend.  There does seem to be more spread in higher ages, which
+suggests I might want to start with a log link.  Let's look at the model:
+
+
+
+```{r}
+gamma.glm <- glm(Number ~  Age + Shape,
+                family = Gamma(link = "log"),
+                data = blockst1)
+
+summary(gamma.glm)
+confint(gamma.glm)
+```
+
+I started by including an interaction effect, but I removed it and the model looks a lot better.
+We can see that both predictors have p-values significant at any reasonable alpha level.
+Also, the 95% confidence intervals are included above.
+The model above:
+
+log(Number) = 1.45642 + 0.15828(Age) - 0.43167(I = ShapeCylinder) + e
+
+This suggests that as Age increases, so does the number of blocks used.  This also
+suggests that when the blocks are shaped as cylinders, children use less blocks.
+
+Let's look at residuals:
+
+```{r}
+plot(rstandard(gamma.glm) ~ log(fitted(gamma.glm)),
+     main = "Log link",
+     las = 1,
+     xlab = "Log of fitted values",
+     ylab = "Standardized residuals")
+```
+
+I think this residual plot looks good given the data.  It does seem to have a fairly 
+even spread about 0.  I certainly don't see any apparent problematic trends.
+Let's check for any highly influential points:
+
+```{r}
+influence.measures(gamma.glm)
+```
+
+Everything looks alright here, the one point marked as influential checks out as ok as far as
+I can tell.
 
 Additional:
 
