@@ -182,6 +182,12 @@ as.data.frame(anova(fit, test = "Chisq"))
 Well, all 3 tests suggest that Temp does have a significant effect on Age. The
 p-values differ, especially for the likelihood ratio test, but I think this is most likely because of the smaller sample size.
 
+
+
+
+
+
+
 BINOMIAL:
 
 Description:
@@ -216,13 +222,99 @@ Primary effect size estimates:
 Analysis:
 
 ```{r}
+data(belection)
 
+belection$totalran = belection$Females + belection$Males
+belection$propfemale <- belection$Females / (belection$total)
+belection$Region <- as.factor(belection$Region)
+belection$Party <- as.factor(belection$Party)
+
+summary(belection)
 ```
 
+We're going to be using a binomial EDM with a logit link and we have region and
+party to explore.
 
+```{r}
+binom.logit <- glm(Females/totalran ~ Party,
+                data = belection,
+                family = binomial,
+                weights = totalran)
+
+summary(binom.logit)
+anova(binom.logit, test = "Chisq")
+confint(binom.logit)
+```
+
+Well, after factoring in the weights and our 2 factor predictors, Party and Region, I settled
+on the model above.  The model is a weighted logistic regression using only Party
+as a predictor.  Party has a significant p-value of 4.152 x 10^(-11), which is
+significant at any reasonable alpha level.  In terms of the parties, this model results
+in the following expected proportions of females running:
+
+Conservative: 0.0899
+Green: 0.2381
+Labour: 0.1987
+LibDem: 0.2152
+Other: 0.1982
+
+as shown below:
+
+```{r}
+exp(-2.3148)/(1 + exp(-2.3148))
+exp(-2.3148 + 1.1516)/(1 + exp(-2.3148 + 1.1516))
+exp(-2.3148 + 0.9206)/(1 + exp(-2.3148 + 0.9206))
+exp(-2.3148 + 1.0209)/(1 + exp(-2.3148 + 1.0209))
+exp(-2.3148 + 0.9174)/(1 + exp(-2.3148 + 0.9174))
+```
+
+The 95% confidence intervals for these coefficients are noted above.
+
+Let's look at diagnostics:
+```{r}
+resid.raw <- resid(binom.logit)
+
+fit.values <- fitted(binom.logit)
+
+plot(fit.values, resid.raw)
+
+influence.measures(binom.logit)
+```
+
+I looked through all of the points marked as influential, but they all look ok.  Cook's D's
+all look good, and the residuals show a nice, mostly even spread about 0.  
+I think this is a nice model altogether.  I'm actually big on following
+politics including UK politics, and this seems to follow the trend I would expect from these
+parties.  I think it is interesting to note that this was coming out of Margaret Thatcher's
+tenure as Prime Minister which ended in 1990, and she was the first female PM and a
+member of the Conservative party, so I was curious if her leadership would bring female
+Conservative participation up to a level even with the other parties.  Also a random
+note: the Green party in the UK has only ever had one member of parliament elected
+to the House of Commons, who is female.  Her name is Caroline Lucas and she's been an mp
+since 2010, so it is interesting that Green's have the highest expected proportion of female participation here.
 
 
 Additional:
+
+1)
+We can conduct a goodness-of-fit test
+
+2)
+```{r}
+c(Df = df.residual(binom.logit),
+  Resid.dev = deviance(binom.logit),
+  Pearson.X2 = sum(resid(binom.logit, type = "pearson")^2))
+```
+These are different, but I wouldn't feel comfortable saying they are significantly different.
+We want these 3 numbers to be close, and I would say they are sufficiently close enough to
+not worry about overdispersion.
+
+3)
+To handle any overdispersion, we could shift from using a binomial model to a 
+quasi-binomial model.
+
+
+
 
 
 
