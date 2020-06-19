@@ -1,0 +1,129 @@
+---
+title: "Michael Hornsby EDRM 878 Assignment 5"
+output: html_notebook
+---
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+library(statmod)
+```
+
+Problem 9.7
+
+Import data:
+
+```{r}
+data(shuttles)
+
+summary(shuttles)
+```
+
+Plot of the data:
+
+```{r}
+shuttles %>% 
+  ggplot(aes(x = Temp, y = Damaged)) +
+  geom_point() +
+  labs(title = "Scatterplot of Damage by Temp",
+       x = "Ambient Air Temperature",
+       y = "Number of Damaged O-Rings")
+```
+
+create proportion:
+
+```{r}
+shuttles$PropDamaged <- shuttles$Damaged/6
+```
+
+
+
+
+Fit the proposed model:
+
+```{r}
+glm.out = glm(PropDamaged ~ Temp,
+              family=binomial(logit),
+              data = shuttles)
+
+summary(glm.out)
+```
+
+I wouldn't say this model looks good, which is expected given the plot above.  The p-values are not significant at any reasonable alpha level.
+
+**The problem is that you didn't weight your proportions. That changes the**
+**p value and your conclusion!**
+
+
+Diagnostic Analysis:
+
+```{r}
+c(df.residual(glm.out),
+  deviance(glm.out),
+  sum(resid(glm.out, type = "pearson")^2))
+
+```
+
+Interesting, I believe this suggests underdispersion?  Our residual deviance is much less than our residual df.
+
+```{r}
+influence.measures(glm.out)
+```
+
+These influential points (1, 2, 3, and 18) are about what I expected.  However, I certainly wouldn't throw them out.  I think it is the nature of this data for these points to be influential given the number of points we do have and that only 2 observations had 2 O-rings fail.
+
+Ulimately, I wouldn't say these diagnostics look 'good', but given this situation is a 'looking back' situation, I wouldn't say it is wise to throw any observations out.  I think the best solution is to look for additional variables to help explain things and try and address the underdispersion?
+
+
+Predicted probability of an O-ring failure for 31 degrees:
+
+```{r}
+estuff <- exp(5.085 - (0.1156*31))
+estuff/(1+estuff)
+```
+
+The predicted probability of an O-ring failure at 31 degrees F is 81.77832%.
+
+The ED50 in this context would tell us at what ambient air temperature we would expect 50% of O-rings to fail. I believe a more sensible and useful ED would be 16.67 maybe?  This keeps the expected number of O-rings to fail for each launch at 1, which is too many given the situation. Realistically, I would probably picked an ED between 5 and 15 to be on the safe side.
+
+
+
+Problem 10.12
+
+```{r}
+data(dwomen)
+
+dwomen$Depression <- as.factor(dwomen$Depression)
+dwomen$SLE <- as.factor(dwomen$SLE)
+dwomen$Children <- as.factor(dwomen$Children)
+
+summary(dwomen)
+```
+
+
+
+```{r}
+my.model <- glm(Counts ~ (SLE + Children) * Depression,
+              family = poisson,
+              data = dwomen)
+
+anova(my.model, test = "Chisq")
+```
+
+From this model we can see a few things. All three main effects predict significantly different count responses.  Additionally, there are interaction effects between the SLE and Depression variables and the Children and Depression variables.  From this we know that our main effects are certainly not all independent.  Given that we have a cell with a 0 count, I'm very hesistant to draw any substantial conclusions from this model and I would say further data might be necessary for any realistic conclusions.
+
+**We often have cell counts of zero. Don't let it dissuade you! Also, see my**
+**work for an example of how to interpret this more specifically.**
+
+**Nice work! Make sure you see my comment for the binomial problem.**
+
+**Score: 20/20**
+
