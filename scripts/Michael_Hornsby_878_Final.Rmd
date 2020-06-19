@@ -52,12 +52,135 @@ Primary effect size estimates:
 
 Analysis:
 
+```{r}
+data(crawl)
+
+summary(crawl)
+```
+
+```{r}
+crawl %>% 
+  ggplot(aes(x = Temp, y = Age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age on Temp",
+       y = "Age at which baby started to crawl",
+       x = "Monthly average temperature six months after birth month")
+
+crawl %>% 
+  ggplot(aes(y = Temp)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Temp")
+
+crawl %>% 
+  ggplot(aes(y = Age)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Age")
+
+crawl %>%
+  ggplot() +
+  geom_qq(aes(sample = Temp)) +
+  labs(title = "QQ-plot for Temp")
+
+crawl %>%
+  ggplot() +
+  geom_qq(aes(sample = Age)) +
+  labs(title = "QQ-plot for Age")
+
+```
+
+Well, here we can see from the scatterplot that things look mostly linear.  If I could
+remove that one observation around Temp 50 with the lowest Age, I would be extremely happy just using the two variables as they are.  The boxplot for temp looks really good and mostly normal with a small skew.  The boxplot for age looks as though it has much larger skew.  The qq-plots mirror this.  I'm going to try a ladder of powers with Age to see what I get and see if any transformation makes things better.
+
+```{r}
+boxcox(Age ~ Temp,
+       lambda = seq(-5.00, 20.00, by = .05), data = crawl)
+```
+
+Oh boy, this doesn't look good.  Both our predictor and response show slight skew, and based on
+all of my exploration trying to transform the response, I think it is best to leave it as is.
+Twelve data points isn't a lot and I wouldn't expect a miracle from the model.
+
+```{r}
+normal.model <- glm(Age ~ Temp, data = crawl)
+summary(normal.model)
+confint(normal.model)
+```
+
+Ok, all things considered, this model looks nice.  We have a significant p-value of 0.0113
+for Temp, which is significant at an alpha = 0.05 level.  We have an Intercept age of
+35.67806 and a Temp coefficient of -0.07774.  Thus our model is:
+
+Age = 35.67806 - 0.07774(Temp)
+
+This model will give us the expected Age at which the baby will start to crawl given the
+monthly average temperature six months after the birth month of the baby.
+
+We have our 95% confidence interval for the Intercept:
+  (33.0957562, 38.26036294)
+And our 95% confidence interval for the Temp coefficient:
+  (-0.1269348, -0.02854351)
+
+
+```{r}
+resid.raw <- resid(normal.model)
+
+fit.values <- fitted(normal.model)
+
+plot(fit.values, resid.raw)
+
+influence.measures(normal.model)
+```
+
+As far as diagnostics go, the residual plot looks to have an even enough spread with the exception of that one point.  R marks 3 obserations as highly influential.  I wouldn't be 
+concerned with observations 2 and 3.  They have low cook's D.  However, again, that one
+observation that seems to be an outlier has a significantly higher cook's D relative
+to the rest of the observations.  I think I would suggest returning to the theory or
+researcher on how to address this point.  The model holds when including it, but removing
+it may be acceptable.  Also, more than 12 data points would be nice as well.  However,
+regardless of this highly influential point, we can safely conclude that Temp does
+significantly predict Age in the context of these variables.
+
+Plot of model relationship:
+
+```{r}
+crawl %>% 
+  ggplot(aes(x = Temp, y = Age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age on Temp",
+       y = "Age at which baby started to crawl",
+       x = "Monthly average temperature six months after birth month") +
+  geom_smooth(method = 'lm', se = FALSE)
+```
+
 
 
 Additional:
 
+Our Wald test is the same as above:
+
+```{r}
+summary(glm(Age ~ Temp, data = crawl))
+```
+
+The score test:
+
+```{r}
+crawl.m0 <- glm(Age ~ 1, data = crawl)
+z.stat <- glm.scoretest(crawl.m0, crawl$Temp)
+p.val <- 2 * pnorm(abs(z.stat), lower.tail = FALSE)
+round(c(score.stat = z.stat, P = p.val), 4)
+```
 
 
+The likelihood ratio test:
+
+```{r}
+fit <- glm(Age ~ Temp, data = crawl)
+as.data.frame(anova(fit, test = "Chisq"))
+```
+
+Well, all 3 tests suggest that Temp does have a significant effect on Age. The
+p-values differ, especially for the likelihood ratio test, but I think this is most likely because of the smaller sample size.
 
 BINOMIAL:
 
@@ -91,6 +214,11 @@ Primary effect size estimates:
 
 
 Analysis:
+
+```{r}
+
+```
+
 
 
 
