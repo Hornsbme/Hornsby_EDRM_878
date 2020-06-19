@@ -541,9 +541,24 @@ influence.measures(gamma.glm)
 Everything looks alright here, the one point marked as influential checks out as ok as far as
 I can tell.
 
+I hope I was sufficient here, I felt like this was a fairly straightforward analysis going
+into it knowing to use a gamma glm.
+
 Additional:
 
+```{r}
+blockst1$Agegrp <- cut(blockst1$Age, breaks = 3)
+```
 
+```{r}
+vr <- with(blockst1, tapply(Number, list(Agegrp, Shape), "var"))
+mn <- with(blockst1, tapply(Number, list(Agegrp, Shape), "mean"))
+plot(log(vr) ~ log(mn))
+```
+
+The goal here is to show that as mean increases, so does the variance.  I think this plot
+sufficiently shows that.  I was expecting a quadratic relationship here, and I think I see
+one, but I was thinking it might be more apparent.
 
 
 
