@@ -1752,9 +1752,53 @@ summary {
 <p>libraries:</p>
 <!-- rnb-text-end -->
 <!-- rnb-text-begin -->
+<p>NORMAL:</p>
+<p>Description:</p>
+<p>Mean-Variance Relationship:</p>
+<p>The variance of mu can be treated as 1 here since the variance is captured in the dispersion parameter sigma squared, and the variance of a normal distribution is simply sigma squared</p>
+<p>Dispersion:</p>
+<p>The dispersion is sigma squared - the variance of a normal distribution, this will have to be estimated</p>
+<p>Potential Link Functions: Methods of Inference: Saddlepoint Approximation and Central Limit Theorem:</p>
+<p>The saddlepoint approximation is exact for the normal distribution. The central limit theorem is exact for the normal distribution as well.</p>
+<p>When to adjust for overdispersion: What type of residual to use: Diagnostics: Scale transformations to use: Primary effect size estimates:</p>
+<p>Analysis:</p>
+<p>Additional:</p>
+<p>BINOMIAL:</p>
+<p>Description:</p>
+<p>Mean-Variance Relationship:</p>
+<p>For mean mu, the variance will be: V(mu) = mu(1 - mu) where mu = np</p>
+<p>Dispersion:</p>
+<p>The dispersion is 1/m where m in the number of trials</p>
+<p>Potential Link Functions: Methods of Inference: Saddlepoint Approximation and Central Limit Theorem:</p>
+<p>The saddlepoint approximation for the binomial will be sufficient when min(my) &gt;= 3 and min(m(1-y)) &gt;= 3 The central limit theorem will be sufficiently accurate for the binomial when min(my) &gt;= 5 and min(m(1-y)) &gt;= 5</p>
+<p>When to adjust for overdispersion: What type of residual to use: Diagnostics: Scale transformations to use: Primary effect size estimates:</p>
+<p>Analysis:</p>
+<p>Additional:</p>
+<p>POISSON:</p>
+<p>Description:</p>
+<p>Mean-Variance Relationship:</p>
+<p>The mean equals the variance in a poisson distribution</p>
+<p>Dispersion:</p>
+<p>The dispersion parameter equals 1 for the poisson</p>
+<p>Potential Link Functions: Methods of Inference: Saddlepoint Approximation and Central Limit Theorem:</p>
+<p>The saddlepoint approximation for the poisson will be sufficient when min(y) &gt;= 3 The central limit theorem will be sufficiently accurate for the poisson when min(y) &gt;= 5</p>
+<p>When to adjust for overdispersion: What type of residual to use: Diagnostics: Scale transformations to use: Primary effect size estimates:</p>
+<p>Analysis:</p>
+<p>Additional:</p>
+<p>GAMMA:</p>
+<p>Description:</p>
+<p>Mean-Variance Relationship:</p>
+<p>The variance of mu for the gamma edm is mu squared</p>
+<p>Dispersion:</p>
+<p>Unless y follows a normal or exponential distribution, the dispersion parameter will have to be estimated. Thus, the likelihood ratio tests are based on F-tests</p>
+<p>Potential Link Functions: Methods of Inference: Saddlepoint Approximation and Central Limit Theorem:</p>
+<p>The saddlepoint approximation for the gamma will be sufficiently accurate when phi &lt;= 1/3 The central limit theorem for the gamma will be sufficiently accurate when phi &lt;= 1/5</p>
+<p>When to adjust for overdispersion: What type of residual to use: Diagnostics: Scale transformations to use: Primary effect size estimates:</p>
+<p>Analysis:</p>
+<p>Additional:</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIk1pY2hhZWwgSG9ybnNieSBFRFJNIDg3OCBGaW5hbCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmxpYnJhcmllczoNCg0KYGBge3IgaW5jbHVkZT1GQUxTRX0NCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeShnZ3JlcGVsKQ0KbGlicmFyeShzY2FsZXMpDQpsaWJyYXJ5KHJlYWR4bCkNCmxpYnJhcnkocHVycnIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShjYXIpDQpsaWJyYXJ5KEdMTXNEYXRhKQ0KbGlicmFyeShNQVNTKQ0KbGlicmFyeShzdGF0bW9kKQ0KYGBgDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIk1pY2hhZWwgSG9ybnNieSBFRFJNIDg3OCBGaW5hbCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmxpYnJhcmllczoNCg0KYGBge3IgaW5jbHVkZT1GQUxTRX0NCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeShnZ3JlcGVsKQ0KbGlicmFyeShzY2FsZXMpDQpsaWJyYXJ5KHJlYWR4bCkNCmxpYnJhcnkocHVycnIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShjYXIpDQpsaWJyYXJ5KEdMTXNEYXRhKQ0KbGlicmFyeShNQVNTKQ0KbGlicmFyeShzdGF0bW9kKQ0KYGBgDQoNCg0KTk9STUFMOg0KDQpEZXNjcmlwdGlvbjoNCg0KTWVhbi1WYXJpYW5jZSBSZWxhdGlvbnNoaXA6DQoNCiAgVGhlIHZhcmlhbmNlIG9mIG11IGNhbiBiZSB0cmVhdGVkIGFzIDEgaGVyZSBzaW5jZSB0aGUgdmFyaWFuY2UgaXMgY2FwdHVyZWQgaW4gdGhlDQogICAgZGlzcGVyc2lvbiBwYXJhbWV0ZXIgc2lnbWEgc3F1YXJlZCwgYW5kIHRoZSB2YXJpYW5jZSBvZiBhIG5vcm1hbCBkaXN0cmlidXRpb24gaXMNCiAgICBzaW1wbHkgc2lnbWEgc3F1YXJlZA0KDQpEaXNwZXJzaW9uOg0KDQogIFRoZSBkaXNwZXJzaW9uIGlzIHNpZ21hIHNxdWFyZWQgLSB0aGUgdmFyaWFuY2Ugb2YgYSBub3JtYWwgZGlzdHJpYnV0aW9uLA0KICAgIHRoaXMgd2lsbCBoYXZlIHRvIGJlIGVzdGltYXRlZA0KDQpQb3RlbnRpYWwgTGluayBGdW5jdGlvbnM6DQpNZXRob2RzIG9mIEluZmVyZW5jZToNClNhZGRsZXBvaW50IEFwcHJveGltYXRpb24gYW5kIENlbnRyYWwgTGltaXQgVGhlb3JlbToNCg0KICBUaGUgc2FkZGxlcG9pbnQgYXBwcm94aW1hdGlvbiBpcyBleGFjdCBmb3IgdGhlIG5vcm1hbCBkaXN0cmlidXRpb24uDQogIFRoZSBjZW50cmFsIGxpbWl0IHRoZW9yZW0gaXMgZXhhY3QgZm9yIHRoZSBub3JtYWwgZGlzdHJpYnV0aW9uIGFzIHdlbGwuDQoNCldoZW4gdG8gYWRqdXN0IGZvciBvdmVyZGlzcGVyc2lvbjoNCldoYXQgdHlwZSBvZiByZXNpZHVhbCB0byB1c2U6DQpEaWFnbm9zdGljczoNClNjYWxlIHRyYW5zZm9ybWF0aW9ucyB0byB1c2U6DQpQcmltYXJ5IGVmZmVjdCBzaXplIGVzdGltYXRlczoNCg0KDQoNCkFuYWx5c2lzOg0KDQoNCg0KQWRkaXRpb25hbDoNCg0KDQoNCg0KQklOT01JQUw6DQoNCkRlc2NyaXB0aW9uOg0KDQpNZWFuLVZhcmlhbmNlIFJlbGF0aW9uc2hpcDoNCg0KICBGb3IgbWVhbiBtdSwgdGhlIHZhcmlhbmNlIHdpbGwgYmU6DQogICAgVihtdSkgPSBtdSgxIC0gbXUpIHdoZXJlIG11ID0gbnANCg0KRGlzcGVyc2lvbjoNCg0KICBUaGUgZGlzcGVyc2lvbiBpcyAxL20gd2hlcmUgbSBpbiB0aGUgbnVtYmVyIG9mIHRyaWFscw0KDQpQb3RlbnRpYWwgTGluayBGdW5jdGlvbnM6DQpNZXRob2RzIG9mIEluZmVyZW5jZToNClNhZGRsZXBvaW50IEFwcHJveGltYXRpb24gYW5kIENlbnRyYWwgTGltaXQgVGhlb3JlbToNCg0KICBUaGUgc2FkZGxlcG9pbnQgYXBwcm94aW1hdGlvbiBmb3IgdGhlIGJpbm9taWFsIHdpbGwgYmUgc3VmZmljaWVudCB3aGVuDQogICAgbWluKG15KSA+PSAzIGFuZCBtaW4obSgxLXkpKSA+PSAzDQogIFRoZSBjZW50cmFsIGxpbWl0IHRoZW9yZW0gd2lsbCBiZSBzdWZmaWNpZW50bHkgYWNjdXJhdGUgZm9yIHRoZSBiaW5vbWlhbCB3aGVuDQogICAgbWluKG15KSA+PSA1IGFuZCBtaW4obSgxLXkpKSA+PSA1DQoNCldoZW4gdG8gYWRqdXN0IGZvciBvdmVyZGlzcGVyc2lvbjoNCldoYXQgdHlwZSBvZiByZXNpZHVhbCB0byB1c2U6DQpEaWFnbm9zdGljczoNClNjYWxlIHRyYW5zZm9ybWF0aW9ucyB0byB1c2U6DQpQcmltYXJ5IGVmZmVjdCBzaXplIGVzdGltYXRlczoNCg0KDQoNCg0KQW5hbHlzaXM6DQoNCg0KDQpBZGRpdGlvbmFsOg0KDQoNCg0KDQpQT0lTU09OOg0KDQpEZXNjcmlwdGlvbjoNCg0KTWVhbi1WYXJpYW5jZSBSZWxhdGlvbnNoaXA6DQoNCiAgVGhlIG1lYW4gZXF1YWxzIHRoZSB2YXJpYW5jZSBpbiBhIHBvaXNzb24gZGlzdHJpYnV0aW9uDQoNCkRpc3BlcnNpb246DQoNCiAgVGhlIGRpc3BlcnNpb24gcGFyYW1ldGVyIGVxdWFscyAxIGZvciB0aGUgcG9pc3Nvbg0KDQpQb3RlbnRpYWwgTGluayBGdW5jdGlvbnM6DQpNZXRob2RzIG9mIEluZmVyZW5jZToNClNhZGRsZXBvaW50IEFwcHJveGltYXRpb24gYW5kIENlbnRyYWwgTGltaXQgVGhlb3JlbToNCg0KICBUaGUgc2FkZGxlcG9pbnQgYXBwcm94aW1hdGlvbiBmb3IgdGhlIHBvaXNzb24gd2lsbCBiZSBzdWZmaWNpZW50IHdoZW4NCiAgICBtaW4oeSkgPj0gMw0KICBUaGUgY2VudHJhbCBsaW1pdCB0aGVvcmVtIHdpbGwgYmUgc3VmZmljaWVudGx5IGFjY3VyYXRlIGZvciB0aGUgcG9pc3NvbiB3aGVuDQogICAgbWluKHkpID49IDUNCg0KV2hlbiB0byBhZGp1c3QgZm9yIG92ZXJkaXNwZXJzaW9uOg0KV2hhdCB0eXBlIG9mIHJlc2lkdWFsIHRvIHVzZToNCkRpYWdub3N0aWNzOg0KU2NhbGUgdHJhbnNmb3JtYXRpb25zIHRvIHVzZToNClByaW1hcnkgZWZmZWN0IHNpemUgZXN0aW1hdGVzOg0KDQoNCg0KDQpBbmFseXNpczoNCg0KDQoNCkFkZGl0aW9uYWw6DQoNCg0KDQoNCkdBTU1BOg0KDQpEZXNjcmlwdGlvbjoNCg0KTWVhbi1WYXJpYW5jZSBSZWxhdGlvbnNoaXA6DQoNCiAgVGhlIHZhcmlhbmNlIG9mIG11IGZvciB0aGUgZ2FtbWEgZWRtIGlzIG11IHNxdWFyZWQNCg0KRGlzcGVyc2lvbjoNCg0KICBVbmxlc3MgeSBmb2xsb3dzIGEgbm9ybWFsIG9yIGV4cG9uZW50aWFsIGRpc3RyaWJ1dGlvbiwgdGhlIGRpc3BlcnNpb24gcGFyYW1ldGVyDQogICAgd2lsbCBoYXZlIHRvIGJlIGVzdGltYXRlZC4gIFRodXMsIHRoZSBsaWtlbGlob29kIHJhdGlvIHRlc3RzIGFyZSBiYXNlZCBvbg0KICAgIEYtdGVzdHMNCg0KUG90ZW50aWFsIExpbmsgRnVuY3Rpb25zOg0KTWV0aG9kcyBvZiBJbmZlcmVuY2U6DQpTYWRkbGVwb2ludCBBcHByb3hpbWF0aW9uIGFuZCBDZW50cmFsIExpbWl0IFRoZW9yZW06DQoNCiAgVGhlIHNhZGRsZXBvaW50IGFwcHJveGltYXRpb24gZm9yIHRoZSBnYW1tYSB3aWxsIGJlIHN1ZmZpY2llbnRseSBhY2N1cmF0ZSB3aGVuDQogICAgcGhpIDw9IDEvMw0KICBUaGUgY2VudHJhbCBsaW1pdCB0aGVvcmVtIGZvciB0aGUgZ2FtbWEgd2lsbCBiZSBzdWZmaWNpZW50bHkgYWNjdXJhdGUgd2hlbg0KICAgIHBoaSA8PSAxLzUNCg0KV2hlbiB0byBhZGp1c3QgZm9yIG92ZXJkaXNwZXJzaW9uOg0KV2hhdCB0eXBlIG9mIHJlc2lkdWFsIHRvIHVzZToNCkRpYWdub3N0aWNzOg0KU2NhbGUgdHJhbnNmb3JtYXRpb25zIHRvIHVzZToNClByaW1hcnkgZWZmZWN0IHNpemUgZXN0aW1hdGVzOg0KDQoNCg0KDQpBbmFseXNpczoNCg0KDQoNCkFkZGl0aW9uYWw6DQoNCg0KDQoNCg0KDQo=</div>
 
 
 

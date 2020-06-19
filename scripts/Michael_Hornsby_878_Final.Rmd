@@ -19,3 +19,165 @@ library(MASS)
 library(statmod)
 ```
 
+
+NORMAL:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The variance of mu can be treated as 1 here since the variance is captured in the
+    dispersion parameter sigma squared, and the variance of a normal distribution is
+    simply sigma squared
+
+Dispersion:
+
+  The dispersion is sigma squared - the variance of a normal distribution,
+    this will have to be estimated
+
+Potential Link Functions:
+Methods of Inference:
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation is exact for the normal distribution.
+  The central limit theorem is exact for the normal distribution as well.
+
+When to adjust for overdispersion:
+What type of residual to use:
+Diagnostics:
+Scale transformations to use:
+Primary effect size estimates:
+
+
+
+Analysis:
+
+
+
+Additional:
+
+
+
+
+BINOMIAL:
+
+Description:
+
+Mean-Variance Relationship:
+
+  For mean mu, the variance will be:
+    V(mu) = mu(1 - mu) where mu = np
+
+Dispersion:
+
+  The dispersion is 1/m where m in the number of trials
+
+Potential Link Functions:
+Methods of Inference:
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the binomial will be sufficient when
+    min(my) >= 3 and min(m(1-y)) >= 3
+  The central limit theorem will be sufficiently accurate for the binomial when
+    min(my) >= 5 and min(m(1-y)) >= 5
+
+When to adjust for overdispersion:
+What type of residual to use:
+Diagnostics:
+Scale transformations to use:
+Primary effect size estimates:
+
+
+
+
+Analysis:
+
+
+
+Additional:
+
+
+
+
+POISSON:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The mean equals the variance in a poisson distribution
+
+Dispersion:
+
+  The dispersion parameter equals 1 for the poisson
+
+Potential Link Functions:
+Methods of Inference:
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the poisson will be sufficient when
+    min(y) >= 3
+  The central limit theorem will be sufficiently accurate for the poisson when
+    min(y) >= 5
+
+When to adjust for overdispersion:
+What type of residual to use:
+Diagnostics:
+Scale transformations to use:
+Primary effect size estimates:
+
+
+
+
+Analysis:
+
+
+
+Additional:
+
+
+
+
+GAMMA:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The variance of mu for the gamma edm is mu squared
+
+Dispersion:
+
+  Unless y follows a normal or exponential distribution, the dispersion parameter
+    will have to be estimated.  Thus, the likelihood ratio tests are based on
+    F-tests
+
+Potential Link Functions:
+Methods of Inference:
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the gamma will be sufficiently accurate when
+    phi <= 1/3
+  The central limit theorem for the gamma will be sufficiently accurate when
+    phi <= 1/5
+
+When to adjust for overdispersion:
+What type of residual to use:
+Diagnostics:
+Scale transformations to use:
+Primary effect size estimates:
+
+
+
+
+Analysis:
+
+
+
+Additional:
+
+
+
+
+
+
