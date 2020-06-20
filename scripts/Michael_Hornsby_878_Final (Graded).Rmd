@@ -1,0 +1,650 @@
+---
+title: "Michael Hornsby EDRM 878 Final"
+output: html_notebook
+---
+
+libraries:
+
+```{r include=FALSE}
+library(here)
+library(tidyverse)
+library(ggrepel)
+library(scales)
+library(readxl)
+library(purrr)
+library(dplyr)
+library(car)
+library(GLMsData)
+library(MASS)
+library(statmod)
+```
+
+
+NORMAL:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The variance of mu can be treated as 1 here since the variance is captured in the
+    dispersion parameter sigma squared, and the variance of a normal distribution is
+    simply sigma squared
+
+Dispersion:
+
+  The dispersion is sigma squared - the variance of a normal distribution,
+    this will have to be estimated
+
+Potential Link Functions:
+
+  identity, log, and inverse
+
+Methods of Inference:
+
+  Useful because of relationships to t-distribution and chi-square distribution
+
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation is exact for the normal distribution.
+  The central limit theorem is exact for the normal distribution as well.
+
+When to adjust for overdispersion:
+
+  Data cannot really be overdispered without infinite variance, but
+  might need to be extra mindful of skew and kurtosis
+
+What type of residual to use:
+
+  studentized and raw residuals should suffice
+
+Diagnostics:
+
+  check for any skew or kurtosis outside of normal ranges, outliers, any points
+  with high influence including cook's D and dffits
+
+Scale transformations to use:
+
+  Can use center and scaling (including standardizing), any of the link functions above,
+  we can use a boxcox ladder of powers to check any transformations of the response
+  necessary.
+
+
+Analysis:
+
+```{r}
+data(crawl)
+
+summary(crawl)
+```
+
+```{r}
+crawl %>% 
+  ggplot(aes(x = Temp, y = Age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age on Temp",
+       y = "Age at which baby started to crawl",
+       x = "Monthly average temperature six months after birth month")
+
+crawl %>% 
+  ggplot(aes(y = Temp)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Temp")
+
+crawl %>% 
+  ggplot(aes(y = Age)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Age")
+
+crawl %>%
+  ggplot() +
+  geom_qq(aes(sample = Temp)) +
+  labs(title = "QQ-plot for Temp")
+
+crawl %>%
+  ggplot() +
+  geom_qq(aes(sample = Age)) +
+  labs(title = "QQ-plot for Age")
+
+```
+
+Well, here we can see from the scatterplot that things look mostly linear.  If I could
+remove that one observation around Temp 50 with the lowest Age, I would be extremely happy just using the two variables as they are.  The boxplot for temp looks really good and mostly normal with a small skew.  The boxplot for age looks as though it has much larger skew.  The qq-plots mirror this.  I'm going to try a ladder of powers with Age to see what I get and see if any transformation makes things better.
+
+**Why are you looking for normality for the individual variables? We only**
+**need the residuals from your model to be normally distributed.**
+
+```{r}
+boxcox(Age ~ Temp,
+       lambda = seq(-5.00, 20.00, by = .05), data = crawl)
+```
+
+Oh boy, this doesn't look good.  Both our predictor and response show slight skew, and based on
+all of my exploration trying to transform the response, I think it is best to leave it as is.
+Twelve data points isn't a lot and I wouldn't expect a miracle from the model.
+
+```{r}
+normal.model <- glm(Age ~ Temp, data = crawl)
+summary(normal.model)
+confint(normal.model)
+```
+
+Ok, all things considered, this model looks nice.  We have a significant p-value of 0.0113
+for Temp, which is significant at an alpha = 0.05 level.  We have an Intercept age of
+35.67806 and a Temp coefficient of -0.07774.  Thus our model is:
+
+Age = 35.67806 - 0.07774(Temp) + e
+
+This model will give us the expected Age at which the baby will start to crawl given the
+monthly average temperature six months after the birth month of the baby.
+
+We have our 95% confidence interval for the Intercept:
+  (33.0957562, 38.26036294)
+And our 95% confidence interval for the Temp coefficient:
+  (-0.1269348, -0.02854351)
+
+
+```{r}
+resid.raw <- resid(normal.model)
+
+fit.values <- fitted(normal.model)
+
+plot(fit.values, resid.raw)
+
+influence.measures(normal.model)
+```
+
+As far as diagnostics go, the residual plot looks to have an even enough spread with the exception of that one point.  R marks 3 obserations as highly influential.  I wouldn't be 
+concerned with observations 2 and 3.  They have low cook's D.  However, again, that one
+observation that seems to be an outlier has a significantly higher cook's D relative
+to the rest of the observations.  I think I would suggest returning to the theory or
+researcher on how to address this point.  The model holds when including it, but removing
+it may be acceptable.  Also, more than 12 data points would be nice as well.  However,
+regardless of this highly influential point, we can safely conclude that Temp does
+significantly predict Age in the context of these variables.
+
+Plot of model relationship:
+
+```{r}
+crawl %>% 
+  ggplot(aes(x = Temp, y = Age)) +
+  geom_point() +
+  labs(title = "Scatterplot of Age on Temp",
+       y = "Age at which baby started to crawl",
+       x = "Monthly average temperature six months after birth month") +
+  geom_smooth(method = 'lm', se = FALSE)
+```
+
+
+
+Additional:
+
+Our Wald test is the same as above:
+
+```{r}
+summary(glm(Age ~ Temp, data = crawl))
+```
+
+The score test:
+
+```{r}
+crawl.m0 <- glm(Age ~ 1, data = crawl)
+z.stat <- glm.scoretest(crawl.m0, crawl$Temp)
+p.val <- 2 * pnorm(abs(z.stat), lower.tail = FALSE)
+round(c(score.stat = z.stat, P = p.val), 4)
+```
+
+**See my posts in the Research Cafe under the "score tests" thread for more**
+**information. The score test does yield the same $p$ value as the other**
+**tests.**
+
+The likelihood ratio test:
+
+```{r}
+fit <- glm(Age ~ Temp, data = crawl)
+as.data.frame(anova(fit, test = "Chisq"))
+```
+
+Well, all 3 tests suggest that Temp does have a significant effect on Age. The
+p-values differ, especially for the likelihood ratio test, but I think this is most likely because of the smaller sample size.
+
+**Actually, it's because you used the wrong statistic. You need to use the**
+**F test rather than chi square.**
+
+
+
+
+
+BINOMIAL:
+
+Description:
+
+Mean-Variance Relationship:
+
+  For mean mu, the variance will be:
+    V(mu) = mu(1 - mu) where mu = np
+
+Dispersion:
+
+  The dispersion is 1/m where m in the number of trials
+
+Potential Link Functions:
+
+  logit, probit, cauchit, log, and cloglog
+
+Methods of Inference:
+
+  can use logistic regression when appropriate, also can use weights.
+  We can calculate the median effective dose (ed50 as an example)
+    Cannot use goodness-of-fit for binary responses
+
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the binomial will be sufficient when
+    min(my) >= 3 and min(m(1-y)) >= 3
+  The central limit theorem will be sufficiently accurate for the binomial when
+    min(my) >= 5 and min(m(1-y)) >= 5
+
+When to adjust for overdispersion:
+
+  When variance of the data exceeds mu(1 - mu), there is evidence of possible overdispersion
+  Can use the quasi-binomial to adjust if needed
+
+What type of residual to use:
+
+  residuals should be normal around the fitted values.
+
+Diagnostics:
+
+  influence measures including dffits and cook's D
+  residuals should be normal around fit values.
+
+
+Analysis:
+
+```{r}
+data(belection)
+
+belection$totalran = belection$Females + belection$Males
+belection$propfemale <- belection$Females / (belection$total)
+belection$Region <- as.factor(belection$Region)
+belection$Party <- as.factor(belection$Party)
+
+summary(belection)
+```
+
+We're going to be using a binomial EDM with a logit link and we have region and
+party to explore.
+
+**I don't see where you explored region. It turns out that party is the**
+**only influential factor, but I can't tell how you arrived at that**
+**conclusion.**
+
+```{r}
+binom.logit <- glm(Females/totalran ~ Party,
+                data = belection,
+                family = binomial,
+                weights = totalran)
+
+summary(binom.logit)
+anova(binom.logit, test = "Chisq")
+confint(binom.logit)
+```
+
+Well, after factoring in the weights and our 2 factor predictors, Party and Region, I settled
+on the model above.  The model is a weighted logistic regression using only Party
+as a predictor.  Party has a significant p-value of 4.152 x 10^(-11), which is
+significant at any reasonable alpha level.  In terms of the parties, this model results
+in the following expected proportions of females running:
+
+Conservative: 0.0899
+Green: 0.2381
+Labour: 0.1987
+LibDem: 0.2152
+Other: 0.1982
+
+as shown below:
+
+```{r}
+exp(-2.3148)/(1 + exp(-2.3148))
+exp(-2.3148 + 1.1516)/(1 + exp(-2.3148 + 1.1516))
+exp(-2.3148 + 0.9206)/(1 + exp(-2.3148 + 0.9206))
+exp(-2.3148 + 1.0209)/(1 + exp(-2.3148 + 1.0209))
+exp(-2.3148 + 0.9174)/(1 + exp(-2.3148 + 0.9174))
+```
+
+The 95% confidence intervals for these coefficients are noted above.
+
+Let's look at diagnostics:
+```{r}
+resid.raw <- resid(binom.logit)
+
+fit.values <- fitted(binom.logit)
+
+plot(fit.values, resid.raw)
+
+influence.measures(binom.logit)
+```
+
+I looked through all of the points marked as influential, but they all look ok.  Cook's D's
+all look good, and the residuals show a nice, mostly even spread about 0.  
+I think this is a nice model altogether.  I'm actually big on following
+politics including UK politics, and this seems to follow the trend I would expect from these
+parties.  I think it is interesting to note that this was coming out of Margaret Thatcher's
+tenure as Prime Minister which ended in 1990, and she was the first female PM and a
+member of the Conservative party, so I was curious if her leadership would bring female
+Conservative participation up to a level even with the other parties.  Also a random
+note: the Green party in the UK has only ever had one member of parliament elected
+to the House of Commons, who is female.  Her name is Caroline Lucas and she's been an mp
+since 2010, so it is interesting that Greens have the highest expected proportion of female participation here.
+
+
+Additional:
+
+1)
+We can conduct a goodness-of-fit test
+
+2)
+```{r}
+c(Df = df.residual(binom.logit),
+  Resid.dev = deviance(binom.logit),
+  Pearson.X2 = sum(resid(binom.logit, type = "pearson")^2))
+```
+These are different, but I wouldn't feel comfortable saying they are significantly different.
+We want these 3 numbers to be close, and I would say they are sufficiently close enough to
+not worry about overdispersion.
+
+3)
+To handle any overdispersion, we could shift from using a binomial model to a 
+quasi-binomial model.
+
+
+
+
+
+
+
+POISSON:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The mean equals the variance in a poisson distribution
+
+Dispersion:
+
+  The dispersion parameter equals 1 for the poisson
+
+Potential Link Functions:
+
+  log, identity, and sqrt
+
+Methods of Inference:
+
+  Useful when modeling response as count or can be treated as rates
+  Also can do log-linear analysis when we have the appropriate
+    contingency table format
+
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the poisson will be sufficient when
+    min(y) >= 3
+  The central limit theorem will be sufficiently accurate for the poisson when
+    min(y) >= 5
+
+When to adjust for overdispersion:
+
+  Adjust for overdispersion when var(y) > mu, as the assumption for the poisson
+  is that the var(y) = mu
+  can use a quasi-poisson when appropriate
+
+What type of residual to use:
+
+  residuals should be normal around fitted values
+
+Diagnostics:
+
+  influence measures including dffits and cook's D
+  Also, be wary of Simpson's paradox
+
+
+
+
+Analysis:
+
+First I want to load the data, create the contingency table, and look at the counts:
+
+```{r}
+load("Sociology Survey Data.Rdata")
+
+soc_survey$response <- as.factor(soc_survey$response)
+soc_survey$major <- as.factor(soc_survey$major)
+soc_survey$gender <- as.factor(soc_survey$gender)
+
+summary(soc_survey)
+table(soc_survey)
+```
+```{r}
+Count <- c(1, 5, 6, 16, 16, 8, 20, 10, 0, 10, 2, 12, 19, 7, 15, 13)
+Response <- c(1, 1, 2, 2, 3, 3, 4, 4, 1, 1, 2, 2, 3, 3, 4, 4)
+Major <- c(1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2)
+Gender <- c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2)
+soctable <- data.frame(Count, Response, Major, Gender)
+soctable
+```
+
+Let's check the interaction of response and major to see what happens:
+
+```{r}
+poisson.1 <- glm(Count ~ Response * Major,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.1, test = "Chisq")
+```
+
+We see that sociology students do differ significantly in response counts.
+Let's look at a table to see:
+
+```{r}
+table(soc_survey$response, soc_survey$major)
+```
+
+We can see that sociology students are more likely to choose options 3 and 4 (increase 
+social services support or none of the above) and that other majors are more likely to
+choose options 1 and 2 in comparison to sociology students (increasing penalties and
+police force).
+
+Let's explore factoring in gender:
+
+```{r}
+poisson.2 <- glm(Count ~ Response * Major * Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.2, test = "Chisq")
+
+
+poisson.3 <- glm(Count ~ Response * Major * Gender - Response:Major:Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.3, test = "Chisq")
+
+poisson.4 <- glm(Count ~ Response * Gender,
+            family = poisson,
+            data = soctable)
+
+anova(poisson.4, test = "Chisq")
+```
+
+I tried the above 3 models, as well as some additional ones just to be safe, and found no
+indication that Gender has any effect on response count.  I think it is worth mentioning
+that some count cells do have low values (including 1 and 0), however, I don't think that
+is cause for alarm here given the context of the situation and sample size.
+
+**What is your final model and what are the effect sizes for that model?**
+
+Additional:
+
+I don't think we have to worry about simpson's paradox in this data, especially with 
+regards to the specific research question of interest.  Looking at the counts of response
+by major pretty much explains our significant effect there.  I suppose it is still possible
+for the paradox to occur in some effect given we can't randomize to condition here, but 
+I'm not seeing any real evidence of it, especially since in this reasearch question of
+interest we don't want to look at just reponse variable counts alone.
+
+
+
+
+
+
+GAMMA:
+
+Description:
+
+Mean-Variance Relationship:
+
+  The variance of mu for the gamma edm is mu squared
+
+Dispersion:
+
+  Unless y follows a normal or exponential distribution, the dispersion parameter
+    will have to be estimated.  Thus, the likelihood ratio tests are based on
+    F-tests
+
+Potential Link Functions:
+
+  inverse, identity, and log
+
+Methods of Inference:
+
+  Useful when we have a positive, continuous response
+    (Also has a relationship to the exponential distribution)
+
+Saddlepoint Approximation and Central Limit Theorem:
+
+  The saddlepoint approximation for the gamma will be sufficiently accurate when
+    phi <= 1/3
+  The central limit theorem for the gamma will be sufficiently accurate when
+    phi <= 1/5
+
+When to adjust for overdispersion:
+
+  shouldn't need to adjust for overdispersion as the dispersion parameter
+  should capture the adjustment needed (hope I'm saying that right)
+
+What type of residual to use:
+
+  residuals should be normal around fitted values.
+
+Diagnostics:
+
+  influence measures (including dffits and cook's D)
+
+
+
+Analysis:
+
+Import data and subset to only include Trial 1:
+
+```{r}
+data(blocks)
+
+blocks$Trial <- as.factor(blocks$Trial)
+blocks$Shape <- as.factor(blocks$Shape)
+
+blockst1 <- subset(blocks, Trial == 1)
+
+summary(blockst1)
+```
+
+I want to plot the relationships:
+
+```{r}
+blockst1 %>% 
+  ggplot(aes(x = Age, y = Number, color = Shape)) +
+  geom_point() +
+  labs(title = "Scatterplot of Number on Age by Shape",
+       y = "Number",
+       x = "Age")
+```
+
+Looking at this, it does look as though shape is significant and there does appear to
+be some upward trend.  There does seem to be more spread in higher ages, which
+suggests I might want to start with a log link.  Let's look at the model:
+
+
+
+```{r}
+gamma.glm <- glm(Number ~  Age + Shape,
+                family = Gamma(link = "log"),
+                data = blockst1)
+
+summary(gamma.glm)
+confint(gamma.glm)
+```
+
+I started by including an interaction effect, but I removed it and the model looks a lot better.
+We can see that both predictors have p-values significant at any reasonable alpha level.
+Also, the 95% confidence intervals are included above.
+The model above:
+
+log(Number) = 1.45642 + 0.15828(Age) - 0.43167(I = ShapeCylinder) + e
+
+This suggests that as Age increases, so does the number of blocks used.  This also
+suggests that when the blocks are shaped as cylinders, children use less blocks.
+
+Let's look at residuals:
+
+```{r}
+plot(rstandard(gamma.glm) ~ log(fitted(gamma.glm)),
+     main = "Log link",
+     las = 1,
+     xlab = "Log of fitted values",
+     ylab = "Standardized residuals")
+```
+
+I think this residual plot looks good given the data.  It does seem to have a fairly 
+even spread about 0.  I certainly don't see any apparent problematic trends.
+Let's check for any highly influential points:
+
+```{r}
+influence.measures(gamma.glm)
+```
+
+Everything looks alright here, the one point marked as influential checks out as ok as far as
+I can tell.
+
+I hope I was sufficient here, I felt like this was a fairly straightforward analysis going
+into it knowing to use a gamma glm.
+
+Additional:
+
+```{r}
+blockst1$Agegrp <- cut(blockst1$Age, breaks = 3)
+```
+
+```{r}
+vr <- with(blockst1, tapply(Number, list(Agegrp, Shape), "var"))
+mn <- with(blockst1, tapply(Number, list(Agegrp, Shape), "mean"))
+plot(log(vr) ~ log(mn))
+```
+
+The goal here is to show that as mean increases, so does the variance.  I think this plot
+sufficiently shows that.  I was expecting a quadratic relationship here, and I think I see
+one, but I was thinking it might be more apparent.
+
+**You should have run a linear regression on this and then looked at the**
+**slope. Remember that you have taken logs, so you shouldn't expect a**
+**quadratic relationship. Rather, you would have found a slope near 2, which**
+**tells us that the gamma is a good model.**
+
+***
+
+**This is a nice project. I suggested a few improvements in my notes within.**
+
+**Score: 85/100**
+
+**As always, it has been a pleasure having you in the seminar. I look forward**
+**to watching you continue to make progress in completing your program!**
