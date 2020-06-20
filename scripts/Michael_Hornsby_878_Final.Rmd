@@ -244,6 +244,7 @@ When to adjust for overdispersion:
 
 What type of residual to use:
 
+  residuals should be normal around the fitted values.
 
 Diagnostics:
 
