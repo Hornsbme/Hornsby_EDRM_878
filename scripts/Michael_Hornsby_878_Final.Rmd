@@ -36,18 +36,37 @@ Dispersion:
     this will have to be estimated
 
 Potential Link Functions:
+
+  identity, log, and inverse
+
 Methods of Inference:
+
+  Useful because of relationships to t-distribution and chi-square distribution
+
 Saddlepoint Approximation and Central Limit Theorem:
 
   The saddlepoint approximation is exact for the normal distribution.
   The central limit theorem is exact for the normal distribution as well.
 
 When to adjust for overdispersion:
-What type of residual to use:
-Diagnostics:
-Scale transformations to use:
-Primary effect size estimates:
 
+  Data cannot really be overdispered without infinite variance, but
+  might need to be extra mindful of skew and kurtosis
+
+What type of residual to use:
+
+  studentized and raw residuals should suffice
+
+Diagnostics:
+
+  check for any skew or kurtosis outside of normal ranges, outliers, any points
+  with high influence including cook's D and dffits
+
+Scale transformations to use:
+
+  Can use center and scaling (including standardizing), any of the link functions above,
+  we can use a boxcox ladder of powers to check any transformations of the response
+  necessary.
 
 
 Analysis:
@@ -202,7 +221,15 @@ Dispersion:
   The dispersion is 1/m where m in the number of trials
 
 Potential Link Functions:
+
+  logit, probit, cauchit, log, and cloglog
+
 Methods of Inference:
+
+  can use logistic regression when appropriate, also can use weights.
+  We can calculate the median effective dose (ed50 as an example)
+    Cannot use goodness-of-fit for binary responses
+
 Saddlepoint Approximation and Central Limit Theorem:
 
   The saddlepoint approximation for the binomial will be sufficient when
@@ -211,12 +238,17 @@ Saddlepoint Approximation and Central Limit Theorem:
     min(my) >= 5 and min(m(1-y)) >= 5
 
 When to adjust for overdispersion:
+
+  When variance of the data exceeds mu(1 - mu), there is evidence of possible overdispersion
+  Can use the quasi-binomial to adjust if needed
+
 What type of residual to use:
+
+
 Diagnostics:
-Scale transformations to use:
-Primary effect size estimates:
 
-
+  influence measures including dffits and cook's D
+  residuals should be normal around fit values.
 
 
 Analysis:
@@ -332,7 +364,15 @@ Dispersion:
   The dispersion parameter equals 1 for the poisson
 
 Potential Link Functions:
+
+  log, identity, and sqrt
+
 Methods of Inference:
+
+  Useful when modeling response as count or can be treated as rates
+  Also can do log-linear analysis when we have the appropriate
+    contingency table format
+
 Saddlepoint Approximation and Central Limit Theorem:
 
   The saddlepoint approximation for the poisson will be sufficient when
@@ -341,10 +381,19 @@ Saddlepoint Approximation and Central Limit Theorem:
     min(y) >= 5
 
 When to adjust for overdispersion:
+
+  Adjust for overdispersion when var(y) > mu, as the assumption for the poisson
+  is that the var(y) = mu
+  can use a quasi-poisson when appropriate
+
 What type of residual to use:
+
+  residuals should be normal around fitted values
+
 Diagnostics:
-Scale transformations to use:
-Primary effect size estimates:
+
+  influence measures including dffits and cook's D
+  Also, be wary of Simpson's paradox
 
 
 
@@ -452,7 +501,14 @@ Dispersion:
     F-tests
 
 Potential Link Functions:
+
+  inverse, identity, and log
+
 Methods of Inference:
+
+  Useful when we have a positive, continuous response
+    (Also has a relationship to the exponential distribution)
+
 Saddlepoint Approximation and Central Limit Theorem:
 
   The saddlepoint approximation for the gamma will be sufficiently accurate when
@@ -461,11 +517,17 @@ Saddlepoint Approximation and Central Limit Theorem:
     phi <= 1/5
 
 When to adjust for overdispersion:
-What type of residual to use:
-Diagnostics:
-Scale transformations to use:
-Primary effect size estimates:
 
+  shouldn't need to adjust for overdispersion as the dispersion parameter
+  should capture the adjustment needed (hope I'm saying that right)
+
+What type of residual to use:
+
+  residuals should be normal around fitted values.
+
+Diagnostics:
+
+  influence measures (including dffits and cook's D)
 
 
 
